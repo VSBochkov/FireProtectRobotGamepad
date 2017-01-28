@@ -1,10 +1,16 @@
 package com.example.vbochkov.fireprotectrobotgamepad
 
+import android.app.Application
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.view.MotionEvent
 import android.view.View
+import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import java.io.OutputStream
 import java.net.ServerSocket
@@ -15,6 +21,9 @@ import java.util.concurrent.locks.Condition
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantLock
 
+
+val piConnected : Int = 1
+val piDisconnected : Int = 2
 
 class MainActivity() : AppCompatActivity() {
 
@@ -31,15 +40,36 @@ class MainActivity() : AppCompatActivity() {
     val stop : ByteArray = "s".toByteArray()
     val power_off : ByteArray = "e".toByteArray()
 
-    var mtx = ReentrantLock()
-    var hasData = mtx.newCondition()
-    var commandQueue = LinkedBlockingQueue<ByteArray>()
-    var serverThread = ServerThread(commandQueue, mtx, hasData)
+    var servMtx = ReentrantLock()
+    var hasData = servMtx.newCondition()
+    var socketCommandsQueue = LinkedBlockingQueue<ByteArray>()
+
+    val toastMap = mapOf(
+        piConnected to "Raspberry PI is connected!",
+        piDisconnected to "Raspberry PI is disconnected!"
+    )
+
+    fun showToast(toastId: Int): Boolean {
+        Toast.makeText(this, toastMap[toastId], Toast.LENGTH_SHORT).show()
+        return true
+    }
+
+    val showToastHandler = Handler { message ->
+        when (message.what) {
+            piConnected -> showToast(piConnected)
+            piDisconnected -> showToast(piDisconnected)
+            else -> false
+        }
+    }
+
+    var serverThread = ServerThread(
+        socketCommandsQueue, servMtx, hasData, showToastHandler
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+        requestedOrientation = resources.configuration.orientation
 
         val commandMap = mapOf(
             rForwBtn.id to robot_forw,
@@ -56,21 +86,21 @@ class MainActivity() : AppCompatActivity() {
 
         fun btnOnTouch(target: View, motionEvent: MotionEvent): Boolean {
             var result = true
-            val wasEmpty = commandQueue.isEmpty()
+            val wasEmpty = socketCommandsQueue.isEmpty()
             if (motionEvent.action == MotionEvent.ACTION_DOWN) {
-                commandQueue.put(commandMap[target.id])
+                socketCommandsQueue.put(commandMap[target.id])
             } else if (motionEvent.action == MotionEvent.ACTION_UP) {
                 if (target.id != autoGunBtn.id)
-                    commandQueue.put(stop)
+                    socketCommandsQueue.put(stop)
                 else
                     result = false
             } else
                 result = false
 
-            mtx.lock()
-            if (commandQueue.isNotEmpty() and wasEmpty)
+            servMtx.lock()
+            if (socketCommandsQueue.isNotEmpty() and wasEmpty)
                 hasData.signal()
-            mtx.unlock()
+            servMtx.unlock()
             return result
         }
 
@@ -89,25 +119,35 @@ class MainActivity() : AppCompatActivity() {
     }
 }
 
-class ServerThread(var commandQueue: BlockingQueue<ByteArray>, var mtx: Lock, var notEmpty: Condition) : Thread() {
+class ServerThread(
+        var sockCommandsQueue: BlockingQueue<ByteArray>,
+        var servMtx: Lock,
+        var commNotEmpty: Condition,
+        var showToast: Handler)
+    : Thread() {
 
     var server = ServerSocket(8989)
 
     override fun run() {
         val socket = server.accept()
+        var mess = showToast.obtainMessage(piConnected)
+        mess.sendToTarget()
 
         while (socket.isConnected) {
-            mtx.lock()
+            servMtx.lock()
             try {
-                if (commandQueue.isEmpty())
-                    notEmpty.await()
+                if (sockCommandsQueue.isEmpty())
+                    commNotEmpty.await()
 
-                while (commandQueue.isNotEmpty())
-                    socket.outputStream.write(commandQueue.take())
+                while (sockCommandsQueue.isNotEmpty())
+                    socket.outputStream.write(sockCommandsQueue.take())
             } finally {
-                mtx.unlock()
+                servMtx.unlock()
             }
         }
+
+        mess = showToast.obtainMessage(piDisconnected)
+        mess.sendToTarget()
         super.run()
     }
 }

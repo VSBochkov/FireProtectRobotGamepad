@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <Button
+        android:text="right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rRightBtn"
+        android:layout_below="@+id/rForwBtn"
+        android:layout_toEndOf="@+id/rForwBtn" />
+
+    <Button
+        android:text="Forw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rForwBtn"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp" />
+
+    <Button
+        android:text="left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rLeftBtn"
+        android:layout_below="@+id/rForwBtn"
+        android:layout_toStartOf="@+id/rForwBtn" />
+
+    <Button
+        android:text="Back"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/rBackBtn"
+        android:layout_below="@+id/rLeftBtn"
+        android:layout_toEndOf="@+id/rLeftBtn" />
+
+    <Button
+        android:text="Up"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gUpBtn"
+        android:layout_above="@+id/gLeftBtn"
+        android:layout_toEndOf="@+id/gLeftBtn" />
+
+    <Button
+        android:text="right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gRightBtn"
+        android:layout_below="@+id/gUpBtn"
+        android:layout_toEndOf="@+id/gUpBtn" />
+
+    <Button
+        android:text="Down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gDownBtn"
+        android:layout_below="@+id/gRightBtn"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:text="left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gLeftBtn"
+        android:layout_marginBottom="117dp"
+        android:layout_alignParentBottom="true"
+        android:layout_toStartOf="@+id/gDownBtn" />
+
+    <Button
+        android:text="AUTO_GUN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/autoGunBtn"
+        android:layout_above="@+id/gUpBtn"
+        android:layout_toEndOf="@+id/gUpBtn"
+        android:layout_marginStart="30dp"
+        android:layout_marginBottom="77dp" />
+
+    <Button
+        android:text="Pump on"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/pumpBtn"
+        android:layout_alignBaseline="@+id/autoGunBtn"
+        android:layout_alignBottom="@+id/autoGunBtn"
+        android:layout_toStartOf="@+id/gUpBtn"
+        android:layout_marginEnd="24dp" />
+
+</RelativeLayout>
