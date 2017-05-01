@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.widget.Toast
@@ -27,7 +28,8 @@ val piDisconnected : Int = 2
 
 class MainActivity() : AppCompatActivity() {
 
-    val firedet_en : ByteArray = "0".toByteArray()
+    var autogun_enabled : Boolean = false
+    val firedet_en : ByteArray = "a".toByteArray()
     val robot_forw : ByteArray = "1".toByteArray()
     val robot_back : ByteArray = "2".toByteArray()
     val robot_right : ByteArray = "3".toByteArray()
@@ -89,6 +91,24 @@ class MainActivity() : AppCompatActivity() {
             val wasEmpty = socketCommandsQueue.isEmpty()
             if (motionEvent.action == MotionEvent.ACTION_DOWN) {
                 socketCommandsQueue.put(commandMap[target.id])
+                if (target.id == autoGunBtn.id) {
+                    autogun_enabled = !autogun_enabled
+                    if (autogun_enabled) {
+                        autoGunBtn.setText("STOP AUTO GUN")
+                    } else {
+                        autoGunBtn.setText("START AUTO GUN")
+                    }
+                    rForwBtn.setEnabled(!autogun_enabled)
+                    rBackBtn.setEnabled(!autogun_enabled)
+                    rLeftBtn.setEnabled(!autogun_enabled)
+                    rRightBtn.setEnabled(!autogun_enabled)
+                    gUpBtn.setEnabled(!autogun_enabled)
+                    gDownBtn.setEnabled(!autogun_enabled)
+                    gLeftBtn.setEnabled(!autogun_enabled)
+                    gRightBtn.setEnabled(!autogun_enabled)
+                    pumpBtn.setEnabled(!autogun_enabled)
+                    autogun_enabled = !autogun_enabled
+                }
             } else if (motionEvent.action == MotionEvent.ACTION_UP) {
                 if (target.id != autoGunBtn.id)
                     socketCommandsQueue.put(stop)
@@ -138,7 +158,6 @@ class ServerThread(
             try {
                 if (sockCommandsQueue.isEmpty())
                     commNotEmpty.await()
-
                 while (sockCommandsQueue.isNotEmpty())
                     socket.outputStream.write(sockCommandsQueue.take())
             } finally {

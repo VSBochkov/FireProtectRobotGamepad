@@ -69,16 +69,6 @@
         android:layout_toStartOf="@+id/gDownBtn" />
 
     <Button
-        android:text="AUTO_GUN"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/autoGunBtn"
-        android:layout_above="@+id/gUpBtn"
-        android:layout_toEndOf="@+id/gUpBtn"
-        android:layout_marginStart="30dp"
-        android:layout_marginBottom="77dp" />
-
-    <Button
         android:text="Pump on"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -87,5 +77,14 @@
         android:layout_alignBottom="@+id/autoGunBtn"
         android:layout_toStartOf="@+id/gUpBtn"
         android:layout_marginEnd="24dp" />
+
+    <Button
+        android:text="START AUTO GUN"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/autoGunBtn"
+        android:layout_marginBottom="72dp"
+        android:layout_above="@+id/gUpBtn"
+        android:layout_toEndOf="@+id/gUpBtn" />
 
 </RelativeLayout>
