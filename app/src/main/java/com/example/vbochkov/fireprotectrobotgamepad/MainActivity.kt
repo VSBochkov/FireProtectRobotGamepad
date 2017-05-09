@@ -40,7 +40,7 @@ class MainActivity() : AppCompatActivity() {
     val gun_right : ByteArray = "8".toByteArray()
     val pump_on : ByteArray = "p".toByteArray()
     val stop : ByteArray = "s".toByteArray()
-    val power_off : ByteArray = "e".toByteArray()
+    val pump_off : ByteArray = "e".toByteArray()
 
     var servMtx = ReentrantLock()
     var hasData = servMtx.newCondition()
@@ -107,10 +107,11 @@ class MainActivity() : AppCompatActivity() {
                     gLeftBtn.setEnabled(!autogun_enabled)
                     gRightBtn.setEnabled(!autogun_enabled)
                     pumpBtn.setEnabled(!autogun_enabled)
-                    autogun_enabled = !autogun_enabled
                 }
             } else if (motionEvent.action == MotionEvent.ACTION_UP) {
-                if (target.id != autoGunBtn.id)
+                if (target.id == pumpBtn.id)
+                    socketCommandsQueue.put(pump_off)
+                else if (target.id != autoGunBtn.id)
                     socketCommandsQueue.put(stop)
                 else
                     result = false
